@@ -1,38 +1,44 @@
 .App {
   text-align: center;
 }
+.tile {
+  background-size: 100%;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  border: none;
+  float: left;
+  height: 40px;
+  margin: -3px -5px -3px -5px;
+  padding: 0;
+  width: 40px;
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.board-row:after {
+  clear: both;
+  content: "";
+  display: table;
 }
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.game {
+  background-color: lightblue;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  flex-direction: row;
 }
-
-.App-link {
-  color: #61dafb;
+.game-info {
+  margin-left: 20px;
 }
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.game-board{
+  background-image: url("/src/StaticBgs/field.png");
+  background-size: 100%;
+  padding: 20px;
 }
+/* .busterButtons{
+  cursor: pointer;
+  background-image: url("StaticBgs/b1.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  font-size: 18px;
+  color:  lightblue;
+  font-weight: 700;
+  height: 50px;
+  width: auto;
+} */
