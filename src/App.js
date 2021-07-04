@@ -6,6 +6,7 @@ let Y = 19;
 let N = 10;
 let M = 10;
 let C = 5;
+let L = 7;
 let minGroupBlast = 1;
 let neededPoints = 100;
 let shufflesAvailiable = 1;
@@ -31,17 +32,30 @@ function App() {
       case 5:
         bgColor='yellow';
         break;
-                
+      case 'special':
+        bgColor = 'special'
+        break;
       default:
         break;
+    }
+    if (bgColor === 'special') {
+      return(
+        <div 
+          style = {{
+            backgroundImage: `url(assets/${bgColor}.png)`,
+          }}
+          className='tile'
+          onClick={() => props.specialClickHandler()}
+        >
+        </div>
+      )
     }
     return (
       <div 
         style = {{
           backgroundImage: `url(assets/${bgColor}.png)`,
-
         }}
-        className='tile' 
+        className='tile'
         onClick={() => props.clickHandler()}
       >
       </div>
@@ -107,6 +121,7 @@ function App() {
           key = {i+j}
           value={this.props.boardArea[i][j]}
           clickHandler={()=>this.props.clickHandler(i, j)}
+          specialClickHandler={()=>this.props.specialClickHandler(i, j)}
         />
       )
     }
@@ -134,6 +149,7 @@ function App() {
           numberOfTilesInRow = {this.props.aspectRatio.M}
           numberOfRow = {i}
           clickHandler={(i, j)=>this.props.clickHandler(i, j)}
+          specialClickHandler={(i, j)=>this.props.specialClickHandler(i, j)}
         />
       )
     }
@@ -331,7 +347,55 @@ function App() {
       // console.log(result.resultBoard, 'number of blasts avail', result.numberOfAvailiableBlasts)
       return result;
     }
+    specialTileEvent(boardArea, i, j){
+      let vis = this.createArray(this.state.aspectRatio.N, this.state.aspectRatio.M);
+      for (let i = 0; i < this.state.aspectRatio.N; i++) {
+        for (let j = 0; j < this.state.aspectRatio.M; j++) {
+          vis[i][j] = false;
+        }
+      }
+      let result = {
+        resultBoard: boardArea.map(el => el.slice(0)),
+        numberOfAvailiableBlasts: 0
+      };
+      
+      let dx = [-1, 0, 1, 0];
+      let dy = [0, 1, 0, -1];
+      //indices of the board tiles
+      let q = [];
+      //mark starting tile as visited 
+      //and push into queue
+      q.push([i, j]);
+      vis[i][j] = true;
+      //iterate while q
+      //isn't empty
+      while (q.length!==0){
+        
+        let cell = q[0];
+        let x = cell[0];
+        let y = cell[1];
+        q.shift();
+        for (let k = 0; k < 4; k++) {
 
+          let newX = x + dx[k];
+          let newY = y + dy[k];
+
+          if (this.isValid(newX, newY, vis)){
+              q.push([newX, newY]);
+              vis[newX][newY] = true;
+              //mark all avaliable tiles to blast
+              result.resultBoard[newX][newY] = null;
+              result.numberOfAvailiableBlasts++;
+              if(result.resultBoard[x][y]!== null){
+                result.resultBoard[x][y] = null;
+                result.numberOfAvailiableBlasts++;
+              }
+          }
+        }
+      }
+      // console.log(result.resultBoard, 'number of blasts avail', result.numberOfAvailiableBlasts)
+      return result;
+    }
     isAnyTileCanBeBlasted(boardArea){
       for (let i = 0; i < this.state.aspectRatio.N; i++) {
         for (let j = 0; j < this.state.aspectRatio.M; j++) {
@@ -374,6 +438,11 @@ function App() {
         }
       }
         return tempBoardArea;
+    }
+    generateSpecialValue(boardArea, i, j){
+      let tempBoardArea = boardArea.map(el => el.slice(0));
+      tempBoardArea[i][j] = 'special';
+      return tempBoardArea;
     }
 
     shuffleTiles(boardArea){
@@ -444,6 +513,39 @@ function App() {
         
         this.countPoints(blast.numberOfAvailiableBlasts);
         this.setState({turnsAvailable: this.state.turnsAvailable -1 }, () => this.isGameEnded());
+
+        let boardAreaAfterMove = copyBoard;
+        if (blast.numberOfAvailiableBlasts > L) {
+          const boardAfterBigBlast = this.generateSpecialValue(blast.resultBoard, i, j);
+          boardAreaAfterMove = this.moveAfterBlast(boardAfterBigBlast);
+        }else{
+          boardAreaAfterMove = this.moveAfterBlast(blast.resultBoard);
+        }
+        this.setState({boardArea: boardAreaAfterMove});
+
+        const boardAreaAfterReGenerate = this.generateValuesAfterBlast(boardAreaAfterMove);
+        this.setState({boardArea: boardAreaAfterReGenerate});
+
+        if(!this.isAnyTileCanBeBlasted(boardAreaAfterReGenerate)){
+          if (this.state.shufflesLeft > 0){
+            const boardAreaAfterShuffle = this.shuffleTiles(boardAreaAfterReGenerate);
+            this.setState({boardArea: boardAreaAfterShuffle});
+            if(!this.isAnyTileCanBeBlasted(boardAreaAfterShuffle)){
+              this.setState({turnExists: false}, () => this.isGameEnded())
+            }
+          }else{
+            this.setState({turnExists: false}, () => this.isGameEnded())
+          }
+        }
+      }
+    }
+    specialClickHandler(i, j){
+      const copyBoard = this.state.boardArea.map(el => el.slice(0));
+      const blast = this.specialTileEvent(copyBoard, i, j)
+        this.setState({boardArea: blast.resultBoard});
+        
+        this.countPoints(4);
+        this.setState({turnsAvailable: this.state.turnsAvailable -1 }, () => this.isGameEnded());
         
 
         const boardAreaAfterMove = this.moveAfterBlast(blast.resultBoard);
@@ -463,7 +565,6 @@ function App() {
             this.setState({turnExists: false}, () => this.isGameEnded())
           }
         }
-      }
     }
     dynomiteClickHandler(i, j){
       const copyBoard = this.state.boardArea.map(el => el.slice(0));
@@ -504,6 +605,7 @@ function App() {
                 aspectRatio = {this.state.aspectRatio}
                 //generateValue = {() => this.GenerateValue(1, this.state.colorVariaty)}
                 clickHandler = {this.state.isDynamytingNow ? (i, j) => this.dynomiteClickHandler(i, j) :(i, j) => this.clickHandler(i, j)}
+                specialClickHandler = {(i, j) => this.specialClickHandler(i, j)}
               />
             </div>
             <div className="game-info">
