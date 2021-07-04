@@ -7,10 +7,10 @@
   cursor: pointer;
   border: none;
   float: left;
-  height: 40px;
+  height: 5vh;
   margin: -3px -5px -3px -5px;
   padding: 0;
-  width: 40px;
+  width: 5vh;
 
 }
 .board-row:after {
@@ -32,7 +32,8 @@
 }
 .game-board{
   background-image: url("/src/StaticBgs/field.png");
-  background-size: 100%;
+  background-repeat: no-repeat;
+  background-size:cover;
   padding: 20px;
 }
 /* .busterButtons{
