@@ -1,13 +1,19 @@
 import './App.css';
 import React from 'react';
+import { Transition } from 'react-transition-group';
 
-
+// moves Available
 let Y = 19;
+// field aspect
+//x axis
 let N = 10;
+//y axis
 let M = 10;
+//color variety
 let C = 5;
+//needed blast size to activate special
 let L = 7;
-let minGroupBlast = 1;
+let minGroupBlast = 2;
 let neededPoints = 100;
 let shufflesAvailiable = 1;
 let dynomiteRadius = 1;
