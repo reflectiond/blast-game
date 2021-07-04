@@ -523,20 +523,7 @@ function App() {
         }
         this.setState({boardArea: boardAreaAfterMove});
 
-        const boardAreaAfterReGenerate = this.generateValuesAfterBlast(boardAreaAfterMove);
-        this.setState({boardArea: boardAreaAfterReGenerate});
-
-        if(!this.isAnyTileCanBeBlasted(boardAreaAfterReGenerate)){
-          if (this.state.shufflesLeft > 0){
-            const boardAreaAfterShuffle = this.shuffleTiles(boardAreaAfterReGenerate);
-            this.setState({boardArea: boardAreaAfterShuffle});
-            if(!this.isAnyTileCanBeBlasted(boardAreaAfterShuffle)){
-              this.setState({turnExists: false}, () => this.isGameEnded())
-            }
-          }else{
-            this.setState({turnExists: false}, () => this.isGameEnded())
-          }
-        }
+        this.updateAfterMove(boardAreaAfterMove);
       }
     }
     specialClickHandler(i, j){
@@ -551,20 +538,8 @@ function App() {
         const boardAreaAfterMove = this.moveAfterBlast(blast.resultBoard);
         this.setState({boardArea: boardAreaAfterMove});
 
-        const boardAreaAfterReGenerate = this.generateValuesAfterBlast(boardAreaAfterMove);
-        this.setState({boardArea: boardAreaAfterReGenerate});
-
-        if(!this.isAnyTileCanBeBlasted(boardAreaAfterReGenerate)){
-          if (this.state.shufflesLeft > 0){
-            const boardAreaAfterShuffle = this.shuffleTiles(boardAreaAfterReGenerate);
-            this.setState({boardArea: boardAreaAfterShuffle});
-            if(!this.isAnyTileCanBeBlasted(boardAreaAfterShuffle)){
-              this.setState({turnExists: false}, () => this.isGameEnded())
-            }
-          }else{
-            this.setState({turnExists: false}, () => this.isGameEnded())
-          }
-        }
+        this.updateAfterMove(boardAreaAfterMove);
+ 
     }
     dynomiteClickHandler(i, j){
       const copyBoard = this.state.boardArea.map(el => el.slice(0));
@@ -579,6 +554,11 @@ function App() {
       const boardAreaAfterMove = this.moveAfterBlast(dynomite.resultBoard);
       this.setState({boardArea: boardAreaAfterMove});
 
+      this.updateAfterMove(boardAreaAfterMove);
+
+      this.setState({busterDynomiteLeft: this.state.busterDynomiteLeft - 1})
+    }
+    updateAfterMove(boardAreaAfterMove){
       const boardAreaAfterReGenerate = this.generateValuesAfterBlast(boardAreaAfterMove);
       this.setState({boardArea: boardAreaAfterReGenerate});
 
@@ -593,7 +573,6 @@ function App() {
           this.setState({turnExists: false}, () => this.isGameEnded())
         }
       }
-      this.setState({busterDynomiteLeft: this.state.busterDynomiteLeft - 1})
     }
     render(){
       if (this.state.gameOver.Loose === false && this.state.gameOver.Win === false){
