@@ -1,6 +1,5 @@
 import './App.css';
 import React from 'react';
-import { Transition } from 'react-transition-group';
 
 // moves Available
 let Y = 19;
