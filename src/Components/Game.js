@@ -3,7 +3,8 @@ import Board from "./Board";
 import GameOver from "./GameOver";
 import DynomiteButton from "./DynomiteButton";
 import ShuffleButton from "./ShuffleButton";
-
+const GameLogic = require('./GameLogic');
+let gameLogic = new GameLogic();
 class Game extends React.Component {
   constructor(props) {
     super(props);
@@ -15,7 +16,7 @@ class Game extends React.Component {
       storedPoints: 0,
       neededPoints: props.neededPoints,
       dynomiteRadius: props.dynomiteRadius,
-      boardArea: this.createBoardArray(
+      boardArea: gameLogic.createBoardArray(
         this.props.aspectRatio.N,
         this.props.aspectRatio.M,
         this.props.colorVariaty
@@ -28,239 +29,33 @@ class Game extends React.Component {
       turnExists: true,
       gameOver: { Win: false, Loose: false },
     };
-    this.makeFirstIterationBoardValid();
-  }
-  createBoardArray(N, M, colorVar) {
-    let newBoardArea = this.createArray(N, M);
-    for (let i = 0; i < N; i++) {
-      for (let j = 0; j < M; j++) {
-        newBoardArea[i][j] = this.generateValue(1, colorVar);
-      }
-    }
-
-    return newBoardArea;
-  }
-  makeFirstIterationBoardValid() {
-    let newBoardArea = this.state.boardArea.map((el) => el.slice(0));
-    while (!this.isAnyTileCanBeBlasted(newBoardArea)) {
-      console.log("field was shuffled before game");
-      this.preShuffleTiles(newBoardArea);
-      this.isAnyTileCanBeBlasted(newBoardArea);
-    }
-    this.setState({ boardArea: newBoardArea });
+    // this.makeFirstIterationBoardValid();
   }
 
-  createArray(length) {
-    var arr = new Array(length || 0),
-      i = length;
-
-    if (arguments.length > 1) {
-      var args = Array.prototype.slice.call(arguments, 1);
-      while (i--) arr[length - 1 - i] = this.createArray.apply(this, args);
-    }
-
-    return arr;
-  }
-
-  generateValue(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-
-  isValid(i, j, vis) {
-    if (
-      i < 0 ||
-      i > this.state.aspectRatio.N - 1 ||
-      j < 0 ||
-      j > this.state.aspectRatio.M - 1
-    ) {
-      return false;
-    }
-    if (vis[i][j]) {
-      return false;
-    }
-
-    return true;
-  }
-
-  isSameValue(currentTileValue, nextTileValue) {
-    if (currentTileValue !== nextTileValue) {
-      return false;
-    }
-    return true;
-  }
-
-  blastTile(boardArea, i, j) {
-    let vis = this.createArray(
-      this.state.aspectRatio.N,
-      this.state.aspectRatio.M
-    );
-    for (let i = 0; i < this.state.aspectRatio.N; i++) {
-      for (let j = 0; j < this.state.aspectRatio.M; j++) {
-        vis[i][j] = false;
-      }
-    }
-    let result = {
-      resultBoard: boardArea.map((el) => el.slice(0)),
-      numberOfAvailiableBlasts: 0,
-    };
-
-    let dx = [-1, 0, 1, 0];
-    let dy = [0, 1, 0, -1];
-    //indices of the board tiles
-    let q = [];
-    //mark starting tile as visited
-    //and push into queue
-    q.push([i, j]);
-    vis[i][j] = true;
-    //iterate while q
-    //isn't empty
-    while (q.length !== 0) {
-      let cell = q[0];
-      let x = cell[0];
-      let y = cell[1];
-      q.shift();
-      for (let k = 0; k < 4; k++) {
-        let newX = x + dx[k];
-        let newY = y + dy[k];
-
-        if (
-          this.isValid(newX, newY, vis) &&
-          this.isSameValue(boardArea[x][y], boardArea[newX][newY])
-        ) {
-          q.push([newX, newY]);
-          vis[newX][newY] = true;
-          //mark all avaliable tiles to blast
-          result.resultBoard[newX][newY] = null;
-          result.numberOfAvailiableBlasts++;
-          if (result.resultBoard[x][y] !== null) {
-            result.resultBoard[x][y] = null;
-            result.numberOfAvailiableBlasts++;
-          }
-        }
-      }
-    }
-    // console.log(result.resultBoard, 'number of blasts avail', result.numberOfAvailiableBlasts)
-    return result;
-  }
-  dynomiteTile(boardArea, i, j) {
-    let vis = this.createArray(
-      this.state.aspectRatio.N,
-      this.state.aspectRatio.M
-    );
-    for (let i = 0; i < this.state.aspectRatio.N; i++) {
-      for (let j = 0; j < this.state.aspectRatio.M; j++) {
-        vis[i][j] = false;
-      }
-    }
-    let result = {
-      resultBoard: boardArea.map((el) => el.slice(0)),
-      numberOfAvailiableBlasts: 0,
-    };
-
-    let radius = this.state.dynomiteRadius;
-    let dx = [-1, 0, 1, 0, -1, -1, 1, 1];
-    let dy = [0, 1, 0, -1, -1, 1, -1, 1];
-    //indices of the board tiles
-    let q = [];
-    //mark starting tile as visited
-    //and push into queue
-    q.push([i, j]);
-    vis[i][j] = true;
-    //iterate while q
-    //isn't empty
-    while (radius !== 0) {
-      let cell = q[0];
-      let x = cell[0];
-      let y = cell[1];
-      q.shift();
-      for (let k = 0; k < 8; k++) {
-        let newX = x + dx[k];
-        let newY = y + dy[k];
-
-        if (this.isValid(newX, newY, vis)) {
-          q.push([newX, newY]);
-          vis[newX][newY] = true;
-          //mark all avaliable tiles to blast
-          result.resultBoard[newX][newY] = null;
-          result.numberOfAvailiableBlasts++;
-          if (result.resultBoard[x][y] !== null) {
-            result.resultBoard[x][y] = null;
-            result.numberOfAvailiableBlasts++;
-          }
-        }
-      }
-      radius--;
-    }
-    // console.log(result.resultBoard, 'number of blasts avail', result.numberOfAvailiableBlasts)
-    return result;
-  }
-  specialTileEvent(boardArea, i, j) {
-    let vis = this.createArray(
-      this.state.aspectRatio.N,
-      this.state.aspectRatio.M
-    );
-    for (let i = 0; i < this.state.aspectRatio.N; i++) {
-      for (let j = 0; j < this.state.aspectRatio.M; j++) {
-        vis[i][j] = false;
-      }
-    }
-    let result = {
-      resultBoard: boardArea.map((el) => el.slice(0)),
-      numberOfAvailiableBlasts: 0,
-    };
-
-    let dx = [-1, 0, 1, 0];
-    let dy = [0, 1, 0, -1];
-    //indices of the board tiles
-    let q = [];
-    //mark starting tile as visited
-    //and push into queue
-    q.push([i, j]);
-    vis[i][j] = true;
-    //iterate while q
-    //isn't empty
-    while (q.length !== 0) {
-      let cell = q[0];
-      let x = cell[0];
-      let y = cell[1];
-      q.shift();
-      for (let k = 0; k < 4; k++) {
-        let newX = x + dx[k];
-        let newY = y + dy[k];
-
-        if (this.isValid(newX, newY, vis)) {
-          q.push([newX, newY]);
-          vis[newX][newY] = true;
-          //mark all avaliable tiles to blast
-          result.resultBoard[newX][newY] = null;
-          result.numberOfAvailiableBlasts++;
-          if (result.resultBoard[x][y] !== null) {
-            result.resultBoard[x][y] = null;
-            result.numberOfAvailiableBlasts++;
-          }
-        }
-      }
-    }
-    // console.log(result.resultBoard, 'number of blasts avail', result.numberOfAvailiableBlasts)
-    return result;
-  }
-  isAnyTileCanBeBlasted(boardArea) {
-    for (let i = 0; i < this.state.aspectRatio.N; i++) {
-      for (let j = 0; j < this.state.aspectRatio.M; j++) {
-        let numberOfAvailiableBlasts = this.blastTile(
-          boardArea,
-          i,
-          j
-        ).numberOfAvailiableBlasts;
-        if (numberOfAvailiableBlasts >= this.state.minGroupBlast) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
+  // makeFirstIterationBoardValid() {
+  //   let newBoardArea = this.state.boardArea.map((el) => el.slice(0));
+  //   while (!this.isAnyTileCanBeBlasted(newBoardArea)) {
+  //     console.log("field was shuffled before game");
+  //     this.preShuffleTiles(newBoardArea);
+  //     this.isAnyTileCanBeBlasted(newBoardArea);
+  //   }
+  //   this.setState({ boardArea: newBoardArea });
+  // }
+  // isAnyTileCanBeBlasted(boardArea) {
+  //   for (let i = 0; i < this.state.aspectRatio.N; i++) {
+  //     for (let j = 0; j < this.state.aspectRatio.M; j++) {
+  //       let numberOfAvailiableBlasts = this.blastTile(
+  //         boardArea,
+  //         i,
+  //         j
+  //       ).numberOfAvailiableBlasts;
+  //       if (numberOfAvailiableBlasts >= this.state.minGroupBlast) {
+  //         return true;
+  //       }
+  //     }
+  //   }
+  //   return false;
+  // }
 
   moveAfterBlast(boardArea) {
     let tempBoardArea = boardArea.map((el) => el.slice(0));
@@ -362,7 +157,8 @@ class Game extends React.Component {
   }
   clickHandler(i, j) {
     const copyBoard = this.state.boardArea.map((el) => el.slice(0));
-    const blast = this.blastTile(copyBoard, i, j);
+    const blast = gameLogic.blastTile(copyBoard, i, j, this.state.aspectRatio.N, this.state.aspectRatio.M);
+    console.log(blast);
     if (blast.numberOfAvailiableBlasts >= this.state.minGroupBlast) {
       this.setState({ boardArea: blast.resultBoard });
 
@@ -371,25 +167,25 @@ class Game extends React.Component {
         this.isGameEnded()
       );
 
-      let boardAreaAfterMove = copyBoard;
-      if (blast.numberOfAvailiableBlasts > this.numberOfTilesToSpecial) {
-        const boardAfterBigBlast = this.generateSpecialValue(
-          blast.resultBoard,
-          i,
-          j
-        );
-        boardAreaAfterMove = this.moveAfterBlast(boardAfterBigBlast);
-      } else {
-        boardAreaAfterMove = this.moveAfterBlast(blast.resultBoard);
-      }
-      this.setState({ boardArea: boardAreaAfterMove });
+      // let boardAreaAfterMove = copyBoard;
+      // if (blast.numberOfAvailiableBlasts > this.numberOfTilesToSpecial) {
+      //   const boardAfterBigBlast = this.generateSpecialValue(
+      //     blast.resultBoard,
+      //     i,
+      //     j
+      //   );
+      //   boardAreaAfterMove = this.moveAfterBlast(boardAfterBigBlast);
+      // } else {
+      //   boardAreaAfterMove = this.moveAfterBlast(blast.resultBoard);
+      // }
+      // this.setState({ boardArea: boardAreaAfterMove });
 
-      this.updateAfterMove(boardAreaAfterMove);
+      // this.updateAfterMove(boardAreaAfterMove);
     }
   }
   specialClickHandler(i, j) {
     const copyBoard = this.state.boardArea.map((el) => el.slice(0));
-    const blast = this.specialTileEvent(copyBoard, i, j);
+    const blast = gameLogic.blastTile(copyBoard, i, j, this.state.aspectRatio.N, this.state.aspectRatio.M, 'special');
     this.setState({ boardArea: blast.resultBoard });
 
     this.countPoints(4);
@@ -405,7 +201,7 @@ class Game extends React.Component {
   dynomiteClickHandler(i, j) {
     const copyBoard = this.state.boardArea.map((el) => el.slice(0));
     // if (blastNumber >= this.state.minGroupBlast){
-    const dynomite = this.dynomiteTile(copyBoard, i, j);
+    const dynomite = gameLogic.blastTile(copyBoard, i, j, this.state.aspectRatio.N, this.state.aspectRatio.M, 'dynomite', this.state.dynomiteRadius);
 
     this.setState({ boardArea: dynomite.resultBoard });
 
@@ -414,12 +210,12 @@ class Game extends React.Component {
       this.isGameEnded()
     );
 
-    const boardAreaAfterMove = this.moveAfterBlast(dynomite.resultBoard);
-    this.setState({ boardArea: boardAreaAfterMove });
+    // const boardAreaAfterMove = this.moveAfterBlast(dynomite.resultBoard);
+    // this.setState({ boardArea: boardAreaAfterMove });
 
-    this.updateAfterMove(boardAreaAfterMove);
+    // this.updateAfterMove(boardAreaAfterMove);
 
-    this.setState({ busterDynomiteLeft: this.state.busterDynomiteLeft - 1 });
+    // this.setState({ busterDynomiteLeft: this.state.busterDynomiteLeft - 1 });
   }
   updateAfterMove(boardAreaAfterMove) {
     const boardAreaAfterReGenerate =
