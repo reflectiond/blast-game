@@ -180,5 +180,39 @@ class GameLogic {
     }
     return tempBoardArea;
   }
+  shuffleTiles(boardArea, N, M, pre='casual') {
+    let copyBoard = [];
+    if (pre!=='preshuffle'){
+      copyBoard = boardArea.map((el) => el.slice(0));
+    }else{
+      copyBoard = boardArea;
+    }
+    for (let i = 0; i < N; i++) {
+      for (let j = 0; j < M; j++) {
+        let i1 = Math.floor(Math.random() * N);
+        let j1 = Math.floor(Math.random() * M);
+
+        let temp = copyBoard[i][j];
+        copyBoard[i][j] = copyBoard[i1][j1];
+        copyBoard[i1][j1] = temp;
+      }
+    }
+    if (pre!=='preshuffle'){
+      return copyBoard;
+    }
+  }
+  // preShuffleTiles(boardArea) {
+  //   for (let i = 0; i < this.state.aspectRatio.N; i++) {
+  //     for (let j = 0; j < this.state.aspectRatio.M; j++) {
+  //       let i1 = Math.floor(Math.random() * this.state.aspectRatio.N);
+  //       let j1 = Math.floor(Math.random() * this.state.aspectRatio.M);
+
+  //       let temp = boardArea[i][j];
+  //       boardArea[i][j] = boardArea[i1][j1];
+  //       boardArea[i1][j1] = temp;
+  //     }
+  //   }
+  // }
+
 }
 module.exports = GameLogic;

@@ -3,7 +3,7 @@ import Board from "./Board";
 import GameOver from "./GameOver";
 import DynomiteButton from "./DynomiteButton";
 import ShuffleButton from "./ShuffleButton";
-const GameLogic = require('./GameLogic');
+const GameLogic = require("./GameLogic");
 let gameLogic = new GameLogic();
 class Game extends React.Component {
   constructor(props) {
@@ -29,21 +29,21 @@ class Game extends React.Component {
       turnExists: true,
       gameOver: { Win: false, Loose: false },
     };
-    // this.makeFirstIterationBoardValid();
+    
   }
-
-  // makeFirstIterationBoardValid() {
-  //   let newBoardArea = this.state.boardArea.map((el) => el.slice(0));
-  //   while (!this.isAnyTileCanBeBlasted(newBoardArea)) {
-  //     console.log("field was shuffled before game");
-  //     this.preShuffleTiles(newBoardArea);
-  //     this.isAnyTileCanBeBlasted(newBoardArea);
-  //   }
-  //   this.setState({ boardArea: newBoardArea });
-  // }
-  
-
-
+  componentDidMount(){
+    this.makeFirstIterationBoardValid();
+  }
+  makeFirstIterationBoardValid() {
+    let newBoardArea = this.state.boardArea.map((el) => el.slice(0));
+    let isFieldValid = gameLogic.isAnyTileCanBeBlasted(newBoardArea, this.state.aspectRatio.N, this.state.aspectRatio.M, this.state.minGroupBlast)
+    while (!isFieldValid) {
+      console.log("field was shuffled before game");
+      gameLogic.shuffleTiles(newBoardArea, this.state.aspectRatio.N, this.state.aspectRatio.M, 'preshuffle');
+      isFieldValid = gameLogic.isAnyTileCanBeBlasted(newBoardArea, this.state.aspectRatio.N, this.state.aspectRatio.M, this.state.minGroupBlast);
+    }
+    this.setState({ boardArea: newBoardArea });
+  }
 
   countPoints(blastsCounter) {
     this.setState(
@@ -52,55 +52,9 @@ class Game extends React.Component {
     );
   }
 
-
-
-
-  shuffleTiles(boardArea) {
-    let copyBoard = boardArea.map((el) => el.slice(0));
-    for (let i = 0; i < this.state.aspectRatio.N; i++) {
-      for (let j = 0; j < this.state.aspectRatio.M; j++) {
-        let i1 = Math.floor(Math.random() * this.state.aspectRatio.N);
-        let j1 = Math.floor(Math.random() * this.state.aspectRatio.M);
-
-        let temp = copyBoard[i][j];
-        copyBoard[i][j] = copyBoard[i1][j1];
-        copyBoard[i1][j1] = temp;
-      }
-    }
-    this.setState({ shufflesLeft: this.state.shufflesLeft - 1 });
-    return copyBoard;
-  }
-  preShuffleTiles(boardArea) {
-    for (let i = 0; i < this.state.aspectRatio.N; i++) {
-      for (let j = 0; j < this.state.aspectRatio.M; j++) {
-        let i1 = Math.floor(Math.random() * this.state.aspectRatio.N);
-        let j1 = Math.floor(Math.random() * this.state.aspectRatio.M);
-
-        let temp = boardArea[i][j];
-        boardArea[i][j] = boardArea[i1][j1];
-        boardArea[i1][j1] = temp;
-      }
-    }
-  }
-  busterShuffleTiles(boardArea) {
-    let copyBoard = boardArea.map((el) => el.slice(0));
-    for (let i = 0; i < this.state.aspectRatio.N; i++) {
-      for (let j = 0; j < this.state.aspectRatio.M; j++) {
-        let i1 = Math.floor(Math.random() * this.state.aspectRatio.N);
-        let j1 = Math.floor(Math.random() * this.state.aspectRatio.M);
-
-        let temp = copyBoard[i][j];
-        copyBoard[i][j] = copyBoard[i1][j1];
-        copyBoard[i1][j1] = temp;
-      }
-    }
-    this.setState({ busterShufflesLeft: this.state.busterShufflesLeft - 1 });
-    return copyBoard;
-  }
-
   shuffleButtonHandler() {
-    this.setState({ boardArea: this.busterShuffleTiles(this.state.boardArea) });
-  }
+    this.setState({boardArea: gameLogic.shuffleTiles(this.state.boardArea, this.state.aspectRatio.N, this.state.aspectRatio.M),});
+    this.setState({ busterShufflesLeft: this.state.busterShufflesLeft - 1 })}
 
   dynomiteButtonHandler() {
     this.setState({ isDynamytingNow: true });
@@ -116,7 +70,13 @@ class Game extends React.Component {
   }
   clickHandler(i, j) {
     const copyBoard = this.state.boardArea.map((el) => el.slice(0));
-    const blast = gameLogic.blastTile(copyBoard, i, j, this.state.aspectRatio.N, this.state.aspectRatio.M);
+    const blast = gameLogic.blastTile(
+      copyBoard,
+      i,
+      j,
+      this.state.aspectRatio.N,
+      this.state.aspectRatio.M
+    );
     console.log(blast);
     if (blast.numberOfAvailiableBlasts >= this.state.minGroupBlast) {
       this.setState({ boardArea: blast.resultBoard });
@@ -133,9 +93,17 @@ class Game extends React.Component {
           i,
           j
         );
-        boardAreaAfterMove = gameLogic.moveAfterBlast(boardAfterBigBlast, this.state.aspectRatio.N, this.state.aspectRatio.M);
+        boardAreaAfterMove = gameLogic.moveAfterBlast(
+          boardAfterBigBlast,
+          this.state.aspectRatio.N,
+          this.state.aspectRatio.M
+        );
       } else {
-        boardAreaAfterMove = gameLogic.moveAfterBlast(blast.resultBoard, this.state.aspectRatio.N, this.state.aspectRatio.M);
+        boardAreaAfterMove = gameLogic.moveAfterBlast(
+          blast.resultBoard,
+          this.state.aspectRatio.N,
+          this.state.aspectRatio.M
+        );
       }
       this.setState({ boardArea: boardAreaAfterMove });
 
@@ -144,7 +112,14 @@ class Game extends React.Component {
   }
   specialClickHandler(i, j) {
     const copyBoard = this.state.boardArea.map((el) => el.slice(0));
-    const blast = gameLogic.blastTile(copyBoard, i, j, this.state.aspectRatio.N, this.state.aspectRatio.M, 'special');
+    const blast = gameLogic.blastTile(
+      copyBoard,
+      i,
+      j,
+      this.state.aspectRatio.N,
+      this.state.aspectRatio.M,
+      "special"
+    );
     this.setState({ boardArea: blast.resultBoard });
 
     this.countPoints(4);
@@ -160,7 +135,15 @@ class Game extends React.Component {
   dynomiteClickHandler(i, j) {
     const copyBoard = this.state.boardArea.map((el) => el.slice(0));
     // if (blastNumber >= this.state.minGroupBlast){
-    const dynomite = gameLogic.blastTile(copyBoard, i, j, this.state.aspectRatio.N, this.state.aspectRatio.M, 'dynomite', this.state.dynomiteRadius);
+    const dynomite = gameLogic.blastTile(
+      copyBoard,
+      i,
+      j,
+      this.state.aspectRatio.N,
+      this.state.aspectRatio.M,
+      "dynomite",
+      this.state.dynomiteRadius
+    );
 
     this.setState({ boardArea: dynomite.resultBoard });
 
@@ -177,17 +160,38 @@ class Game extends React.Component {
     // this.setState({ busterDynomiteLeft: this.state.busterDynomiteLeft - 1 });
   }
   updateAfterMove(boardAreaAfterMove) {
-    const boardAreaAfterReGenerate =
-      gameLogic.generateValuesAfterBlast(boardAreaAfterMove, this.state.aspectRatio.N, this.state.aspectRatio.M, this.state.colorVariaty);
+    const boardAreaAfterReGenerate = gameLogic.generateValuesAfterBlast(
+      boardAreaAfterMove,
+      this.state.aspectRatio.N,
+      this.state.aspectRatio.M,
+      this.state.colorVariaty
+    );
     this.setState({ boardArea: boardAreaAfterReGenerate });
 
-    if (!gameLogic.isAnyTileCanBeBlasted(boardAreaAfterReGenerate, this.state.aspectRatio.N, this.state.aspectRatio.M, this.state.minGroupBlast)) {
+    if (
+      !gameLogic.isAnyTileCanBeBlasted(
+        boardAreaAfterReGenerate,
+        this.state.aspectRatio.N,
+        this.state.aspectRatio.M,
+        this.state.minGroupBlast
+      )
+    ) {
       if (this.state.shufflesLeft > 0) {
-        const boardAreaAfterShuffle = this.shuffleTiles(
-          boardAreaAfterReGenerate
+        const boardAreaAfterShuffle = gameLogic.shuffleTiles(
+          boardAreaAfterReGenerate,
+          this.state.aspectRatio.N,
+          this.state.aspectRatio.M
         );
+        this.setState({ shufflesLeft: this.state.shufflesLeft - 1 });
         this.setState({ boardArea: boardAreaAfterShuffle });
-        if (!this.isAnyTileCanBeBlasted(boardAreaAfterShuffle)) {
+        if (
+          !gameLogic.isAnyTileCanBeBlasted(
+            boardAreaAfterReGenerate,
+            this.state.aspectRatio.N,
+            this.state.aspectRatio.M,
+            this.state.minGroupBlast
+          )
+        ) {
           this.setState({ turnExists: false }, () => this.isGameEnded());
         }
       } else {

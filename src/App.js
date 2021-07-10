@@ -3,17 +3,17 @@ import React from "react";
 import Game from "./Components/Game.js";
 
 // moves Available
-let Y = 19;
+let Y = 25;
 // field aspect
 //x axis
-let N = 10;
+let N = 5;
 //y axis
-let M = 10;
+let M = 5;
 //color variety
 let C = 5;
 //needed blast size to activate special
 let L = 7;
-let minGroupBlast = 2;
+let minGroupBlast = 6;
 let neededPoints = 100;
 let shufflesAvailiable = 1;
 let dynomiteRadius = 1;
