@@ -41,36 +41,9 @@ class Game extends React.Component {
   //   }
   //   this.setState({ boardArea: newBoardArea });
   // }
-  // isAnyTileCanBeBlasted(boardArea) {
-  //   for (let i = 0; i < this.state.aspectRatio.N; i++) {
-  //     for (let j = 0; j < this.state.aspectRatio.M; j++) {
-  //       let numberOfAvailiableBlasts = this.blastTile(
-  //         boardArea,
-  //         i,
-  //         j
-  //       ).numberOfAvailiableBlasts;
-  //       if (numberOfAvailiableBlasts >= this.state.minGroupBlast) {
-  //         return true;
-  //       }
-  //     }
-  //   }
-  //   return false;
-  // }
+  
 
-  moveAfterBlast(boardArea) {
-    let tempBoardArea = boardArea.map((el) => el.slice(0));
-    for (let i = 0; i < this.state.aspectRatio.N; i++) {
-      for (let j = 0; j < this.state.aspectRatio.M; j++) {
-        if (boardArea[i][j] === null && i !== 0) {
-          for (let k = i; k > 0; k--) {
-            tempBoardArea[k][j] = tempBoardArea[k - 1][j];
-          }
-          tempBoardArea[0][j] = null;
-        }
-      }
-    }
-    return tempBoardArea;
-  }
+
 
   countPoints(blastsCounter) {
     this.setState(
@@ -79,22 +52,8 @@ class Game extends React.Component {
     );
   }
 
-  generateValuesAfterBlast(boardArea) {
-    let tempBoardArea = boardArea.map((el) => el.slice(0));
-    for (let i = 0; i < this.state.aspectRatio.N; i++) {
-      for (let j = 0; j < this.state.aspectRatio.M; j++) {
-        if (tempBoardArea[i][j] === null) {
-          tempBoardArea[i][j] = this.generateValue(1, this.state.colorVariaty);
-        }
-      }
-    }
-    return tempBoardArea;
-  }
-  generateSpecialValue(boardArea, i, j) {
-    let tempBoardArea = boardArea.map((el) => el.slice(0));
-    tempBoardArea[i][j] = "special";
-    return tempBoardArea;
-  }
+
+
 
   shuffleTiles(boardArea) {
     let copyBoard = boardArea.map((el) => el.slice(0));
@@ -167,20 +126,20 @@ class Game extends React.Component {
         this.isGameEnded()
       );
 
-      // let boardAreaAfterMove = copyBoard;
-      // if (blast.numberOfAvailiableBlasts > this.numberOfTilesToSpecial) {
-      //   const boardAfterBigBlast = this.generateSpecialValue(
-      //     blast.resultBoard,
-      //     i,
-      //     j
-      //   );
-      //   boardAreaAfterMove = this.moveAfterBlast(boardAfterBigBlast);
-      // } else {
-      //   boardAreaAfterMove = this.moveAfterBlast(blast.resultBoard);
-      // }
-      // this.setState({ boardArea: boardAreaAfterMove });
+      let boardAreaAfterMove = copyBoard;
+      if (blast.numberOfAvailiableBlasts > this.state.numberOfTilesToSpecial) {
+        const boardAfterBigBlast = gameLogic.generateSpecialValue(
+          blast.resultBoard,
+          i,
+          j
+        );
+        boardAreaAfterMove = gameLogic.moveAfterBlast(boardAfterBigBlast, this.state.aspectRatio.N, this.state.aspectRatio.M);
+      } else {
+        boardAreaAfterMove = gameLogic.moveAfterBlast(blast.resultBoard, this.state.aspectRatio.N, this.state.aspectRatio.M);
+      }
+      this.setState({ boardArea: boardAreaAfterMove });
 
-      // this.updateAfterMove(boardAreaAfterMove);
+      this.updateAfterMove(boardAreaAfterMove);
     }
   }
   specialClickHandler(i, j) {
@@ -219,10 +178,10 @@ class Game extends React.Component {
   }
   updateAfterMove(boardAreaAfterMove) {
     const boardAreaAfterReGenerate =
-      this.generateValuesAfterBlast(boardAreaAfterMove);
+      gameLogic.generateValuesAfterBlast(boardAreaAfterMove, this.state.aspectRatio.N, this.state.aspectRatio.M, this.state.colorVariaty);
     this.setState({ boardArea: boardAreaAfterReGenerate });
 
-    if (!this.isAnyTileCanBeBlasted(boardAreaAfterReGenerate)) {
+    if (!gameLogic.isAnyTileCanBeBlasted(boardAreaAfterReGenerate, this.state.aspectRatio.N, this.state.aspectRatio.M, this.state.minGroupBlast)) {
       if (this.state.shufflesLeft > 0) {
         const boardAreaAfterShuffle = this.shuffleTiles(
           boardAreaAfterReGenerate

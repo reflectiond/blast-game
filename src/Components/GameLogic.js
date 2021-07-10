@@ -58,6 +58,23 @@ class GameLogic {
     }
     return true;
   }
+  isAnyTileCanBeBlasted(boardArea, N, M, minGroupBlast) {
+    for (let i = 0; i < N; i++) {
+      for (let j = 0; j < M; j++) {
+        let numberOfAvailiableBlasts = this.blastTile(
+          boardArea,
+          i,
+          j,
+          N,
+          M,
+        ).numberOfAvailiableBlasts;
+        if (numberOfAvailiableBlasts >= minGroupBlast) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
   blastTile(boardArea, i, j, N, M, typeOfBFS = "casual", radius = 1) {
     let vis = this.createArray(N, M);
     for (let i = 0; i < N; i++) {
@@ -132,6 +149,36 @@ class GameLogic {
       }
     }
     return result;
+  }
+  generateSpecialValue(boardArea, i, j) {
+    let tempBoardArea = boardArea.map((el) => el.slice(0));
+    tempBoardArea[i][j] = "special";
+    return tempBoardArea;
+  }
+  moveAfterBlast(boardArea, N, M) {
+    let tempBoardArea = boardArea.map((el) => el.slice(0));
+    for (let i = 0; i < N; i++) {
+      for (let j = 0; j < M; j++) {
+        if (boardArea[i][j] === null && i !== 0) {
+          for (let k = i; k > 0; k--) {
+            tempBoardArea[k][j] = tempBoardArea[k - 1][j];
+          }
+          tempBoardArea[0][j] = null;
+        }
+      }
+    }
+    return tempBoardArea;
+  }
+  generateValuesAfterBlast(boardArea, N, M, colorVariaty) {
+    let tempBoardArea = boardArea.map((el) => el.slice(0));
+    for (let i = 0; i < N; i++) {
+      for (let j = 0; j < M; j++) {
+        if (tempBoardArea[i][j] === null) {
+          tempBoardArea[i][j] = this.generateValue(1, colorVariaty);
+        }
+      }
+    }
+    return tempBoardArea;
   }
 }
 module.exports = GameLogic;
