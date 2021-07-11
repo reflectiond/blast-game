@@ -2,6 +2,7 @@ import "./App.css";
 import React from "react";
 import Game from "./Components/Game.js";
 
+
 // moves Available
 let Y = 25;
 // field aspect
@@ -19,8 +20,6 @@ let shufflesAvailiable = 1;
 let dynomiteRadius = 1;
 
 function App() {
-  
-
 
 
   return (

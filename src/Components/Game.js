@@ -5,6 +5,7 @@ import DynomiteButton from "./DynomiteButton";
 import ShuffleButton from "./ShuffleButton";
 const GameLogic = require("./GameLogic");
 let gameLogic = new GameLogic();
+
 class Game extends React.Component {
   constructor(props) {
     super(props);
@@ -206,6 +207,7 @@ class Game extends React.Component {
     ) {
       return (
         <div className="game">
+          
           <div className="game-board">
             <Board
               boardArea={this.state.boardArea}
