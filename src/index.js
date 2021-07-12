@@ -56,6 +56,7 @@ function preload() {
   
 }
 function create() {
+  this.add.image(140, 155, 'bg').setScale(0.17)
   renderGrid(this, blastGame.state.boardArea, blastGame.state.aspectRatio.N, blastGame.state.aspectRatio.M);
   this.input.enabled = true;
 }
@@ -68,12 +69,19 @@ function renderGrid(obj, boardArea, N, M){
   for (let i = 0; i < N; i++) {
     let tempX = x;
     for (let j = 0; j < M; j++){
-      // renderTile(obj, boardArea[i][j], tempX, y).on('pointerdown', (el)=>{
-        //   // blastGame.clickHandler(Math.floor(el.downY / 45), Math.floor(el.downX / 40));
-        //   // blastGame.clickHandler(el.downY, el.downX);
-        // })
       let tile = renderTile(obj, boardArea[i][j], tempX, y).setDataEnabled().setPipelineData('TileAddr', {I:i, J:j}).on('pointerdown', ()=> {
         blastGame.clickHandler(tile.pipelineData.TileAddr.I, tile.pipelineData.TileAddr.J);
+      });
+        
+        obj.tweens.add({
+
+          targets: tile,
+          width: 400,
+          angle: -360,
+          yoyo: true,
+          repeat: 3,
+          ease: 'Sine.easeInOut'
+  
       });
       tempX+=stepX;
     }
