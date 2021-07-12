@@ -48,37 +48,36 @@ class Game {
         this.state.minGroupBlast
       );
     }
-    this.state = { boardArea: newBoardArea };
+    this.state.boardArea =  newBoardArea ;
   }
 
   countPoints(blastsCounter) {
-    this.state = {
-      storedPoints: this.state.storedPoints + blastsCounter * 1.5,
-    };
+    this.state.storedPoints += blastsCounter * 1.5;
   }
 
   shuffleButtonHandler() {
-    this.state = {
-      boardArea: gameLogic.shuffleTiles(
+    this.state.boardArea = gameLogic.shuffleTiles(
         this.state.boardArea,
         this.state.aspectRatio.N,
         this.state.aspectRatio.M
-      ),
-    };
-    this.state = { busterShufflesLeft: this.state.busterShufflesLeft - 1 };
+      );
+    this.state.busterShufflesLeft--;
   }
 
   dynomiteButtonHandler() {
-    this.state = { isDynamytingNow: true };
+    this.state.isDynamytingNow = true ;
   }
 
   isGameEnded() {
     if (this.state.storedPoints >= this.state.neededPoints) {
-      this.state = { gameOver: { Win: true, Loose: false } };
+      this.state.gameOver = { Win: true, Loose: false };
+      //return true;
     }
     if (this.state.turnsAvailable === 0 || !this.state.turnExists) {
-      this.state = { gameOver: { Win: false, Loose: true } };
+      this.state.gameOver = { Win: false, Loose: true };
+      //return true;
     }
+    // return false;
   }
   clickHandler(i, j) {
     const copyBoard = this.state.boardArea.map((el) => el.slice(0));
@@ -89,13 +88,12 @@ class Game {
       this.state.aspectRatio.N,
       this.state.aspectRatio.M
     );
-    console.log(blast);
     if (blast.numberOfAvailiableBlasts >= this.state.minGroupBlast) {
-      this.state = { boardArea: blast.resultBoard };
+      this.state.boardArea = blast.resultBoard;
 
       this.countPoints(blast.numberOfAvailiableBlasts);
       this.isGameEnded();
-      this.state = { turnsAvailable: this.state.turnsAvailable - 1 };
+      this.state.turnsAvailable--;
       this.isGameEnded();
 
       let boardAreaAfterMove = copyBoard;
@@ -117,7 +115,7 @@ class Game {
           this.state.aspectRatio.M
         );
       }
-      this.state = { boardArea: boardAreaAfterMove };
+      this.state.boardArea = boardAreaAfterMove;
 
       this.updateAfterMove(boardAreaAfterMove);
     }
@@ -132,14 +130,14 @@ class Game {
       this.state.aspectRatio.M,
       "special"
     );
-    this.state = { boardArea: blast.resultBoard };
+    this.state.boardArea = blast.resultBoard;
 
     this.countPoints(4);
-    this.state = { turnsAvailable: this.state.turnsAvailable - 1 };
+    this.state.turnsAvailable--;
     this.isGameEnded();
 
     const boardAreaAfterMove = this.moveAfterBlast(blast.resultBoard);
-    this.state = { boardArea: boardAreaAfterMove };
+    this.state.boardArea = boardAreaAfterMove;
 
     this.updateAfterMove(boardAreaAfterMove);
   }
@@ -155,11 +153,11 @@ class Game {
       this.state.dynomiteRadius
     );
 
-    this.state = { boardArea: dynomite.resultBoard };
+    this.state.boardArea = dynomite.resultBoard;
 
     this.countPoints(dynomite.numberOfAvailiableBlasts * 0.5);
     this.isGameEnded();
-    this.state = { turnsAvailable: this.state.turnsAvailable - 1 };
+    this.state.turnsAvailable--;
     this.isGameEnded();
   }
   updateAfterMove(boardAreaAfterMove) {
@@ -169,7 +167,7 @@ class Game {
       this.state.aspectRatio.M,
       this.state.colorVariaty
     );
-    this.state = { boardArea: boardAreaAfterReGenerate };
+    this.state.boardArea = boardAreaAfterReGenerate ;
 
     if (
       !gameLogic.isAnyTileCanBeBlasted(
@@ -185,8 +183,8 @@ class Game {
           this.state.aspectRatio.N,
           this.state.aspectRatio.M
         );
-        this.state = { shufflesLeft: this.state.shufflesLeft - 1 };
-        this.state = { boardArea: boardAreaAfterShuffle };
+        this.state.shufflesLeft--;
+        this.state.boardArea = boardAreaAfterShuffle ;
         if (
           !gameLogic.isAnyTileCanBeBlasted(
             boardAreaAfterReGenerate,
@@ -195,11 +193,11 @@ class Game {
             this.state.minGroupBlast
           )
         ) {
-          this.state = { turnExists: false };
+          this.state.turnExists = false;
           this.isGameEnded();
         }
       } else {
-        this.state = { turnExists: false };
+        this.state.turnExists = false;
         this.isGameEnded();
       }
     }

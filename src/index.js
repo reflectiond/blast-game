@@ -5,13 +5,14 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import Phaser from "phaser";
 import Game from "./Components/Game";
+import { render } from "@testing-library/react";
 // moves Available
 let Y = 25;
 // field aspect
 //x axis
-let N = 5;
+let N = 6;
 //y axis
-let M = 5;
+let M = 6;
 //color variety
 let C = 5;
 //needed blast size to activate special
@@ -20,6 +21,7 @@ let minGroupBlast = 6;
 let neededPoints = 100;
 let shufflesAvailiable = 1;
 let dynomiteRadius = 1;
+const images = [];
 
 let blastGame = new Game({
   NumberOfTurns: Y,
@@ -32,7 +34,7 @@ let blastGame = new Game({
   numberOfTilesToSpecial: L,
 });
 blastGame.makeFirstIterationBoardValid();
-
+console.log(blastGame)
 let config = {
   type: Phaser.CANVAS,
   width: 640,
@@ -43,7 +45,7 @@ let config = {
     update: update,
   },
 };
-var gamePhaser = new Phaser.Game(config);
+let gamePhaser = new Phaser.Game(config);
 function preload() {
   this.load.image("blueTile", "./assets/blue.png");
   this.load.image("greenTile", "./assets/green.png");
@@ -54,15 +56,48 @@ function preload() {
   this.load.image("bg", "./assets/field.png");
 }
 function create() {
-  const images = [];
-  // const bg = this.add.image(170, 200, 'bg')
-  const blueTile = this.add.image(200, 150, "blueTile");
-  const greenTile = this.add.image(250, 200, "greenTile");
-  const purpleTile = this.add.image(250, 200, "purpleTile");
-  const redTile = this.add.image(250, 200, "redTile");
-  const yellowTile = this.add.image(250, 200, "yellowTile");
-  // const specialTile = this.add.image(250, 200, 'specialTile')
-  images.push(blueTile, greenTile, purpleTile, redTile, yellowTile);
-  images.map((el) => el.setScale(0.2).setVisible(true));
+  renderGrid(this, blastGame.state.boardArea, blastGame.state.aspectRatio.N, blastGame.state.aspectRatio.M);
+
 }
 function update() {}
+function renderGrid(obj, boardArea, N, M){
+  let x = 40;
+  let y = 40;
+  for (let i = 0; i < N; i++) {
+    let tempX = x;
+    for (let j = 0; j < M; j++){
+      renderTile(obj, boardArea[i][j], tempX, y)
+      tempX+=40;
+    }
+    y+=40;
+    
+  }
+}
+function renderTile(obj, value, x, y){
+  let bgColor = '';
+  switch (value) {
+    case 1:
+      bgColor = "greenTile";
+      break;
+    case 2:
+      bgColor = "blueTile";
+      break;
+    case 3:
+      bgColor = "purpleTile";
+      break;
+    case 4:
+      bgColor = "redTile";
+      break;
+    case 5:
+      bgColor = "yellowTile";
+      break;
+    case "specialTile":
+      bgColor = "specialTile";
+      break;
+    default:
+      break;
+  }
+  return (
+    obj.add.image(x, y, bgColor).setScale(0.2)
+  );
+}
