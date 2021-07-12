@@ -17,7 +17,7 @@ let M = 6;
 let C = 5;
 //needed blast size to activate special
 let L = 7;
-let minGroupBlast = 6;
+let minGroupBlast = 2;
 let neededPoints = 100;
 let shufflesAvailiable = 1;
 let dynomiteRadius = 1;
@@ -34,7 +34,6 @@ let blastGame = new Game({
   numberOfTilesToSpecial: L,
 });
 blastGame.makeFirstIterationBoardValid();
-console.log(blastGame)
 let config = {
   type: Phaser.CANVAS,
   width: 640,
@@ -54,22 +53,31 @@ function preload() {
   this.load.image("yellowTile", "./assets/yellow.png");
   this.load.image("specialTile", "./assets/special.png");
   this.load.image("bg", "./assets/field.png");
+  
 }
 function create() {
   renderGrid(this, blastGame.state.boardArea, blastGame.state.aspectRatio.N, blastGame.state.aspectRatio.M);
-
+  this.input.enabled = true;
 }
 function update() {}
 function renderGrid(obj, boardArea, N, M){
   let x = 40;
   let y = 40;
+  let stepX = 40;
+  let stepY = 45;
   for (let i = 0; i < N; i++) {
     let tempX = x;
     for (let j = 0; j < M; j++){
-      renderTile(obj, boardArea[i][j], tempX, y)
-      tempX+=40;
+      // renderTile(obj, boardArea[i][j], tempX, y).on('pointerdown', (el)=>{
+        //   // blastGame.clickHandler(Math.floor(el.downY / 45), Math.floor(el.downX / 40));
+        //   // blastGame.clickHandler(el.downY, el.downX);
+        // })
+      let tile = renderTile(obj, boardArea[i][j], tempX, y).setDataEnabled().setPipelineData('TileAddr', {I:i, J:j}).on('pointerdown', ()=> {
+        blastGame.clickHandler(tile.pipelineData.TileAddr.I, tile.pipelineData.TileAddr.J);
+      });
+      tempX+=stepX;
     }
-    y+=40;
+    y+=stepY;
     
   }
 }
@@ -98,6 +106,6 @@ function renderTile(obj, value, x, y){
       break;
   }
   return (
-    obj.add.image(x, y, bgColor).setScale(0.2)
-  );
+    obj.add.image(x, y, bgColor).setScale(0.2).setInteractive()
+  )
 }

@@ -80,7 +80,9 @@ class Game {
     // return false;
   }
   clickHandler(i, j) {
+    
     const copyBoard = this.state.boardArea.map((el) => el.slice(0));
+    console.log("clicked ", i, j, copyBoard)
     const blast = gameLogic.blastTile(
       copyBoard,
       i,
@@ -116,11 +118,12 @@ class Game {
         );
       }
       this.state.boardArea = boardAreaAfterMove;
-
+      console.log(this.state.boardArea)
       this.updateAfterMove(boardAreaAfterMove);
     }
   }
   specialClickHandler(i, j) {
+    
     const copyBoard = this.state.boardArea.map((el) => el.slice(0));
     const blast = gameLogic.blastTile(
       copyBoard,
