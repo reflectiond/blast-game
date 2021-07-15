@@ -160,7 +160,7 @@ class GameLogic {
   }
   moveAfterBlast(boardArea, N, M, indexesOfDeleted) {
     let result = {
-      tempBoardArea : boardArea.map((el) => el.slice(0)),
+      resultBoard : boardArea.map((el) => el.slice(0)),
       indexesOfChangedTiles: []
     }
     let markedIndexes = [];
@@ -170,7 +170,8 @@ class GameLogic {
       for (let j = 0; j < M; j++) {
         if (boardArea[i][j] === null && i !== 0) {
           for (let k = i; k > 0; k--) {
-            result.tempBoardArea[k][j] = result.tempBoardArea[k - 1][j];
+            result.resultBoard[k][j] = result.resultBoard[k - 1][j];
+            {
             ////////////////////////////////////////////////////////////////////
             isIndexAlreadyMarked = markedIndexes.map((el)=>{
               if(el.i === k-1 && el.j === j && el.isMarked){
@@ -189,26 +190,28 @@ class GameLogic {
             if (!isIndexAlreadyMarked && !isIndexWasDeleted) {
               result.indexesOfChangedTiles.push([k - 1, j])
               markedIndexes.push({i: k-1,j: j, isMarked: true});
-            }
+            }}
           }
-          result.tempBoardArea[0][j] = null;
+          result.resultBoard[0][j] = null;
         }
       }
     }
-    
-    console.log(result.indexesOfChangedTiles, 'here')
-    return result.tempBoardArea;
+    return result;
   }
   generateValuesAfterBlast(boardArea, N, M, colorVariaty) {
-    let tempBoardArea = boardArea.map((el) => el.slice(0));
+    let result = {
+      resultBoard : boardArea.map((el) => el.slice(0)),
+      indexesOfChangedTiles : []
+    }
     for (let i = 0; i < N; i++) {
       for (let j = 0; j < M; j++) {
-        if (tempBoardArea[i][j] === null) {
-          tempBoardArea[i][j] = this.generateValue(1, colorVariaty);
+        if (result.resultBoard[i][j] === null) {
+          result.resultBoard[i][j] = this.generateValue(1, colorVariaty);
+          result.indexesOfChangedTiles.push({i,j})
         }
       }
     }
-    return tempBoardArea;
+    return result.resultBoard;
   }
   shuffleTiles(boardArea, N, M, pre='casual') {
     let copyBoard = [];

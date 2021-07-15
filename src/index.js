@@ -207,7 +207,6 @@ function clickHandler(scope, i, j) {
 
   if (blast.numberOfAvailiableBlasts >= blastGame.state.minGroupBlast) {
     blastGame.state.boardArea = blast.resultBoard;
-    console.log(blast.indexesOfChangedTiles)
     //render
     makeGrid(scope, false, copyBoard);
     // animateTile(scope, q.indexToDelete, undefined);
@@ -231,7 +230,7 @@ function clickHandler(scope, i, j) {
         boardAfterBigBlast,
         blastGame.state.aspectRatio.N,
         blastGame.state.aspectRatio.M
-      );
+      ).resultBoard;
       //render
     } else {
       boardAreaAfterMove = gameLogic.moveAfterBlast(
@@ -239,7 +238,7 @@ function clickHandler(scope, i, j) {
         blastGame.state.aspectRatio.N,
         blastGame.state.aspectRatio.M,
         blast.indexesOfChangedTiles
-      );
+      ).resultBoard;
     }
     blastGame.state.boardArea = boardAreaAfterMove;
     //render
