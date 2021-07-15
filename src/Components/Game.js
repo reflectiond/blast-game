@@ -48,7 +48,7 @@ class Game {
         this.state.minGroupBlast
       );
     }
-    this.state.boardArea =  newBoardArea ;
+    this.state.boardArea = newBoardArea;
   }
 
   countPoints(blastsCounter) {
@@ -57,15 +57,15 @@ class Game {
 
   shuffleButtonHandler() {
     this.state.boardArea = gameLogic.shuffleTiles(
-        this.state.boardArea,
-        this.state.aspectRatio.N,
-        this.state.aspectRatio.M
-      );
+      this.state.boardArea,
+      this.state.aspectRatio.N,
+      this.state.aspectRatio.M
+    );
     this.state.busterShufflesLeft--;
   }
 
   dynomiteButtonHandler() {
-    this.state.isDynamytingNow = true ;
+    this.state.isDynamytingNow = true;
   }
 
   isGameEnded() {
@@ -80,9 +80,8 @@ class Game {
     // return false;
   }
   clickHandler(i, j) {
-    
     const copyBoard = this.state.boardArea.map((el) => el.slice(0));
-    console.log("clicked ", i, j, copyBoard)
+    console.log("clicked ", i, j, copyBoard);
     const blast = gameLogic.blastTile(
       copyBoard,
       i,
@@ -118,10 +117,9 @@ class Game {
         );
       }
       this.state.boardArea = boardAreaAfterMove;
-      console.log(this.state.boardArea)
+      console.log(this.state.boardArea);
       this.updateAfterMove(boardAreaAfterMove);
     }
   }
-
 }
 export default Game;

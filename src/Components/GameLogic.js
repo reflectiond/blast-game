@@ -188,7 +188,7 @@ class GameLogic {
             }).find((el) => el===true);
             ////////////////////////////////////////////////////////////////////
             if (!isIndexAlreadyMarked && !isIndexWasDeleted) {
-              result.indexesOfChangedTiles.push([k - 1, j])
+              result.indexesOfChangedTiles.push({i:k - 1, j:j})
               markedIndexes.push({i: k-1,j: j, isMarked: true});
             }}
           }
@@ -211,7 +211,7 @@ class GameLogic {
         }
       }
     }
-    return result.resultBoard;
+    return result;
   }
   shuffleTiles(boardArea, N, M, pre='casual') {
     let copyBoard = [];
