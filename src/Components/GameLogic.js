@@ -85,6 +85,7 @@ class GameLogic {
     let result = {
       resultBoard: boardArea.map((el) => el.slice(0)),
       numberOfAvailiableBlasts: 0,
+      indexesOfChangedTiles: []
     };
     let dx = [];
     let dy = [];
@@ -136,9 +137,11 @@ class GameLogic {
           vis[newX][newY] = true;
           result.resultBoard[newX][newY] = null;
           result.numberOfAvailiableBlasts++;
+          result.indexesOfChangedTiles.push({i:newX, j:newY})
           if (result.resultBoard[x][y] !== null) {
             result.resultBoard[x][y] = null;
             result.numberOfAvailiableBlasts++;
+            result.indexesOfChangedTiles.push({i:x,j:y})
           }
         }
       }
@@ -155,19 +158,46 @@ class GameLogic {
     tempBoardArea[i][j] = "special";
     return tempBoardArea;
   }
-  moveAfterBlast(boardArea, N, M) {
-    let tempBoardArea = boardArea.map((el) => el.slice(0));
+  moveAfterBlast(boardArea, N, M, indexesOfDeleted) {
+    let result = {
+      tempBoardArea : boardArea.map((el) => el.slice(0)),
+      indexesOfChangedTiles: []
+    }
+    let markedIndexes = [];
+    let isIndexAlreadyMarked;
+    let isIndexWasDeleted;
     for (let i = 0; i < N; i++) {
       for (let j = 0; j < M; j++) {
         if (boardArea[i][j] === null && i !== 0) {
           for (let k = i; k > 0; k--) {
-            tempBoardArea[k][j] = tempBoardArea[k - 1][j];
+            result.tempBoardArea[k][j] = result.tempBoardArea[k - 1][j];
+            ////////////////////////////////////////////////////////////////////
+            isIndexAlreadyMarked = markedIndexes.map((el)=>{
+              if(el.i === k-1 && el.j === j && el.isMarked){
+                return true;
+              }
+              return false;
+            }).find((el) => el===true);
+            ////////////////////////////////////////////////////////////////////
+            isIndexWasDeleted = indexesOfDeleted.map((el)=>{
+              if(el.i === k - 1 && el.j === j){
+                return true;
+              }
+              return false;
+            }).find((el) => el===true);
+            ////////////////////////////////////////////////////////////////////
+            if (!isIndexAlreadyMarked && !isIndexWasDeleted) {
+              result.indexesOfChangedTiles.push([k - 1, j])
+              markedIndexes.push({i: k-1,j: j, isMarked: true});
+            }
           }
-          tempBoardArea[0][j] = null;
+          result.tempBoardArea[0][j] = null;
         }
       }
     }
-    return tempBoardArea;
+    
+    console.log(result.indexesOfChangedTiles, 'here')
+    return result.tempBoardArea;
   }
   generateValuesAfterBlast(boardArea, N, M, colorVariaty) {
     let tempBoardArea = boardArea.map((el) => el.slice(0));

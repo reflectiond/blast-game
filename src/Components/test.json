@@ -1,0 +1,33 @@
+{
+  "command": "import_acc",
+  "acc_name": "nezhikova",
+  "secret_key": "7X2HIIQo0A2gi1toR6HWWO94asJbmLYrqeJDNXkG0Zv11FsDd6T5R92ZW5e6MhcVvFm742OGhTBPUs76NDG2VvKPs3q4BBxT0iXHFkjvLRzI1shUUlFVSkIVI0tbyfXw",
+  "email": "#{email}",
+  "phone": "#{phone}",
+  "first_name": "#{name_from_ml}",
+  "last_name": "",
+  "city": "#{city}",
+  "country": "#{country}",
+  "group": ["Добавлен из salebot", "Добавлен из salebot МК ГК"],
+  "addfields": {
+    "sb_reg_date": "#{reg_date}",
+    "sb_web_time": "#{web_time}",
+    "sb_id": "#{sb_id}",
+    "sb_messenger": "#{messenger}",
+    "Bil_na_webe_gk": "0",
+    "utm_campaign": "#{utm_campaign}",
+    "utm_source": "#{utm_source}",
+    "utm_medium": "#{utm_medium}",
+    "salebot_user_link": "#{salebot_user_link}"    
+  },
+  "refresh_if_exists": 1,
+  "partner_email": "",
+  "utm_source": "#{utm_source}",
+  "utm_medium": "#{utm_medium}",
+  "utm_content": "#{utm_content}",
+  "utm_campaign": "#{utm_campaign}",
+  "utm_group": "#{utm_group}",
+  "gcpc": "",
+  "gcao": "",
+  "referer": ""
+}

@@ -68,7 +68,6 @@ function create() {
 console.log(gamePhaser.scene.scenes)
 function update() {}
 function makeGrid(scope, isFirstLoad = false, prevGridState=null) {
-  let col;
   let q = {indexToDelete: [], indexToUpdate: []}
   for (let i = 0; i < blastGame.state.aspectRatio.N; i++) {
     for (let j = 0; j < blastGame.state.aspectRatio.M; j++) {
@@ -208,6 +207,7 @@ function clickHandler(scope, i, j) {
 
   if (blast.numberOfAvailiableBlasts >= blastGame.state.minGroupBlast) {
     blastGame.state.boardArea = blast.resultBoard;
+    console.log(blast.indexesOfChangedTiles)
     //render
     makeGrid(scope, false, copyBoard);
     // animateTile(scope, q.indexToDelete, undefined);
@@ -237,7 +237,8 @@ function clickHandler(scope, i, j) {
       boardAreaAfterMove = gameLogic.moveAfterBlast(
         blast.resultBoard,
         blastGame.state.aspectRatio.N,
-        blastGame.state.aspectRatio.M
+        blastGame.state.aspectRatio.M,
+        blast.indexesOfChangedTiles
       );
     }
     blastGame.state.boardArea = boardAreaAfterMove;
