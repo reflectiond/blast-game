@@ -158,44 +158,86 @@ class GameLogic {
     tempBoardArea[i][j] = "special";
     return tempBoardArea;
   }
-  moveAfterBlast(boardArea, N, M, indexesOfDeleted) {
+  // moveAfterBlast(boardArea, N, M, indexesOfDeleted) {
+  //   let result = {
+  //     resultBoard : boardArea.map((el) => el.slice(0)),
+  //     indexesOfChangedTiles: []
+  //   }
+  //   let markedIndexes = [];
+  //   let isIndexAlreadyMarked;
+  //   let isIndexWasDeleted;
+  //   for (let i = 0; i < N; i++) {
+  //     for (let j = 0; j < M; j++) {
+  //       if (boardArea[i][j] === null && i !== 0) {
+  //         for (let k = i; k > 0; k--) {
+  //           result.resultBoard[k][j] = result.resultBoard[k - 1][j];
+  //           {
+  //           ////////////////////////////////////////////////////////////////////
+  //           isIndexAlreadyMarked = markedIndexes.map((el)=>{
+  //             if(el.i === k-1 && el.j === j && el.isMarked){
+  //               return true;
+  //             }
+  //             return false;
+  //           }).find((el) => el===true);
+  //           ////////////////////////////////////////////////////////////////////
+  //           isIndexWasDeleted = indexesOfDeleted.map((el)=>{
+  //             if(el.i === k - 1 && el.j === j){
+  //               return true;
+  //             }
+  //             return false;
+  //           }).find((el) => el===true);
+  //           ////////////////////////////////////////////////////////////////////
+  //           if (!isIndexAlreadyMarked && !isIndexWasDeleted) {
+  //             result.indexesOfChangedTiles.push({i:k - 1, j:j})
+  //             markedIndexes.push({i: k-1,j: j, isMarked: true});
+  //           }}
+  //         }
+  //         result.resultBoard[0][j] = null;
+  //       }
+  //     }
+  //   }
+  //   return result;
+  // }
+  moveAfterBlast(boardArea, N, M) {
     let result = {
       resultBoard : boardArea.map((el) => el.slice(0)),
       indexesOfChangedTiles: []
+
     }
     let markedIndexes = [];
     let isIndexAlreadyMarked;
     let isIndexWasDeleted;
-    for (let i = 0; i < N; i++) {
+    for (let i = N - 1; i >= 0; i--) {
       for (let j = 0; j < M; j++) {
-        if (boardArea[i][j] === null && i !== 0) {
-          for (let k = i; k > 0; k--) {
-            result.resultBoard[k][j] = result.resultBoard[k - 1][j];
-            {
-            ////////////////////////////////////////////////////////////////////
-            isIndexAlreadyMarked = markedIndexes.map((el)=>{
-              if(el.i === k-1 && el.j === j && el.isMarked){
-                return true;
+        if ( i-1 >= 0 && result.resultBoard[i][j]=== null) {
+          if (result.resultBoard[i-1][j]=== null){
+            let k = N - 1;
+            while(k !== 0 ){
+              let n = 2;
+              if (i-n >= 0){
+                if(result.resultBoard[i-n][j]===null){
+                  k--;
+                  continue;
+                }
+                let temp = result.resultBoard[i-n][j];
+                result.resultBoard[i-n][j] = result.resultBoard[i][j];
+                result.resultBoard[i][j] = temp;
+                result.indexesOfChangedTiles.push({i: i-n,j, newI: i})
               }
-              return false;
-            }).find((el) => el===true);
-            ////////////////////////////////////////////////////////////////////
-            isIndexWasDeleted = indexesOfDeleted.map((el)=>{
-              if(el.i === k - 1 && el.j === j){
-                return true;
-              }
-              return false;
-            }).find((el) => el===true);
-            ////////////////////////////////////////////////////////////////////
-            if (!isIndexAlreadyMarked && !isIndexWasDeleted) {
-              result.indexesOfChangedTiles.push({i:k - 1, j:j})
-              markedIndexes.push({i: k-1,j: j, isMarked: true});
-            }}
+              k--;
+            }
+          }else{
+            let temp = result.resultBoard[i-1][j];
+            result.resultBoard[i-1][j] = result.resultBoard[i][j];
+            result.resultBoard[i][j] = temp;
+            result.indexesOfChangedTiles.push({i: i-1,j, newI: i})
           }
-          result.resultBoard[0][j] = null;
+
         }
       }
     }
+    console.log(result.resultBoard, 'afterMove')
+    console.log(result.indexesOfChangedTiles, 'afterMove')
     return result;
   }
   generateValuesAfterBlast(boardArea, N, M, colorVariaty) {
