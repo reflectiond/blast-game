@@ -202,29 +202,31 @@ class GameLogic {
     let result = {
       resultBoard : boardArea.map((el) => el.slice(0)),
       indexesOfChangedTiles: []
-
     }
-    let markedIndexes = [];
-    let isIndexAlreadyMarked;
-    let isIndexWasDeleted;
+
     for (let i = N - 1; i >= 0; i--) {
       for (let j = 0; j < M; j++) {
         if ( i-1 >= 0 && result.resultBoard[i][j]=== null) {
           if (result.resultBoard[i-1][j]=== null){
             let k = N - 1;
+            let n = 2;
+            let iteration = 0;
             while(k !== 0 ){
-              let n = 2;
               if (i-n >= 0){
                 if(result.resultBoard[i-n][j]===null){
                   k--;
+                  n++;
+                  iteration++;
                   continue;
                 }
                 let temp = result.resultBoard[i-n][j];
-                result.resultBoard[i-n][j] = result.resultBoard[i][j];
-                result.resultBoard[i][j] = temp;
-                result.indexesOfChangedTiles.push({i: i-n,j, newI: i})
+                result.resultBoard[i-n][j] = result.resultBoard[i-iteration][j];
+                result.resultBoard[i-iteration][j] = temp;
+                result.indexesOfChangedTiles.push({i: i-n,j, newI: i-iteration})
               }
+              n++;
               k--;
+              iteration++;
             }
           }else{
             let temp = result.resultBoard[i-1][j];
@@ -237,7 +239,6 @@ class GameLogic {
       }
     }
     console.log(result.resultBoard, 'afterMove')
-    console.log(result.indexesOfChangedTiles, 'afterMove')
     return result;
   }
   generateValuesAfterBlast(boardArea, N, M, colorVariaty) {
@@ -258,6 +259,7 @@ class GameLogic {
   shuffleTiles(boardArea, N, M, pre='casual') {
     let copyBoard = [];
     if (pre!=='preshuffle'){
+      console.log('was shuffled')
       copyBoard = boardArea.map((el) => el.slice(0));
     }else{
       copyBoard = boardArea;
