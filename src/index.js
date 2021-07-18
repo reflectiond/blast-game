@@ -63,13 +63,14 @@ function create() {
   // bg.animations.play('wobble');
   this.grid = gameLogic.createArray(N, M);
   makeGrid(this, true);
+  this.tempGrid = this.grid.map(el => el.slice(0));
+  console.log(this.grid, this.tempGrid)
   animateTile(this);
-  
   this.input.enabled = true;
 }
 // console.log(gamePhaser.scene.scenes)
 function update() {}
-function makeGrid(scope, isFirstLoad = false, indexesToDeleteAnim, indexesToMoveAnim, indexesToGenerateAnim) {
+function makeGrid(scope, isFirstLoad = false) {
   // let q = {indexToDelete: [], indexToUpdate: []}
   for (let i = 0; i < blastGame.state.aspectRatio.N; i++) {
     for (let j = 0; j < blastGame.state.aspectRatio.M; j++) {
@@ -83,101 +84,114 @@ function makeGrid(scope, isFirstLoad = false, indexesToDeleteAnim, indexesToMove
           sx,
           sy,
           isFirstLoad
-        );
-        tile.setAlpha(0);
-        tile.setData('y', sy)
-        tile.on("pointerdown", () => {
-          clickHandler(
-            scope,
-            tile.getData("tileAddr").I,
-            tile.getData("tileAddr").J
           );
-        });
-      } else {
-        tile = scope.grid[i][j];
-        if(indexesToDeleteAnim){
-          indexesToDeleteAnim.map((el)=>
-            {
-              if (el.i === i && el.j === j){
-                animateTile(scope, {i, j}, undefined, undefined, () => tile.setTexture(createTileView(undefined, blastGame.state.boardArea[i][j], undefined, undefined, false)));
-              }
-            }
-        )}
-        if(indexesToMoveAnim){
-          indexesToMoveAnim.map((el)=>
-            {
-              if (el.i === i && el.j === j){
-                animateTile(scope, undefined, {i, j}, undefined, () => tile.setTexture(createTileView(undefined, blastGame.state.boardArea[i][j], undefined, undefined, false)))
-              }
-            })
+          tile.setAlpha(0);
+          tile.setData('y', sy)
+          tile.on("pointerdown", () => {
+            clickHandler(
+              scope,
+              tile.getData("tileAddr").I,
+              tile.getData("tileAddr").J
+              );
+            });
+          } else{
+            tile = scope.grid[i][j];
+            tile.setTexture(createTileView(scope, blastGame.state.boardArea[i][j], undefined, undefined, false))
           }
-        if(indexesToGenerateAnim){
-          indexesToGenerateAnim.map((el)=>
-            {
-              if (el.i === i && el.j === j){
-                animateTile(scope, undefined, undefined, {i, j}, () => tile.setTexture(createTileView(undefined, blastGame.state.boardArea[i][j], undefined, undefined, false)))
-              }
-            })
-          }
-        }
-        tile.setData("tileValue", blastGame.state.boardArea[i][j]);
-        tile.setData("tileAddr", { I: i, J: j });
-        
-        scope.grid[i][j] = tile;
-
+          tile.setData("tileValue", blastGame.state.boardArea[i][j]);
+          tile.setData("tileAddr", { I: i, J: j });
+          scope.grid[i][j] = tile;
+          
+          
+          
+            
     }
   }
   // return q;
  
 }
+function afterClickEvent(scope, indexesToDeleteAnim, indexesToMoveAnim, indexesToGenerateAnim ){
+  let tile = {};
+  if(indexesToDeleteAnim){
+    let cellsToAnimate = indexesToDeleteAnim.map((el)=>
+    {
+        return tile = scope.tempGrid[el.i][el.j];
+    }
+    )
+    for (let k = 0; k < cellsToAnimate.length; k++) {
+      let i = cellsToAnimate[k].getData('tileAddr').I;
+      let j = cellsToAnimate[k].getData('tileAddr').J;
+      scope.time.delayedCall(500 + k*200, ()=>clearTile(scope , i, j, ()=>createTileView(scope, blastGame.state.boardArea[i][j], undefined, undefined, false, i, j)), [], scope);
+    }
+  }
+    if(indexesToMoveAnim){
+      let cellsToAnimate = indexesToMoveAnim.map((el)=>
+      {
+          return tile = scope.tempGrid[el.i][el.j];
+        })
+      for (let k = 0; k < cellsToAnimate.length; k++) {
+        let i = cellsToAnimate[k].getData('tileAddr').I;
+        let j = cellsToAnimate[k].getData('tileAddr').J;
+        scope.time.delayedCall(550, ()=>animateTile(scope, undefined, {i, j}, undefined, () => createTileView(scope, blastGame.state.boardArea[i][j], undefined, undefined, false, i, j)), [], scope);
+        
+      }
+    }
+    if(indexesToGenerateAnim){
+      indexesToGenerateAnim.map((el)=>
+      {
+        tile = scope.tempGrid[el.i][el.j];
+        animateTile(scope, undefined, undefined, {i:el.i, j:el.j}, () => tile.setTexture(createTileView(undefined, blastGame.state.boardArea[el.i][el.j], undefined, undefined, false)))
+      })
+    }
+}
 function animateTile(scope, tileToDelete, tileToMove, tileToGenerate, callback) {
   if (tileToDelete ){
-
       let tile = scope.grid[tileToDelete.i][tileToDelete.j]
       scope.tweens.add({
         targets: tile,
         angle: -360,
-        alpha: 0,
+        // alpha: 0,
         ease: "Power3",
-        duration: 600,
+        duration: 1000,
         onComplete: ()=>{
           // tile.setAlpha(1)
           callback();
         }
       });
-      scope.tweens.add({
-        targets: tile,
-        angle: -360,
-        alpha: 1,
-        ease: "Power3",
-        duration: 600,
+      // scope.tweens.add({
+      //   targets: tile,
+      //   angle: -360,
+      //   alpha: 1,
+      //   ease: "Power3",
+      //   duration: 600,
 
-      });
+      // });
     return;
   }
+
   if (tileToMove){
       let tile = scope.grid[tileToMove.i][tileToMove.j];
       tile.setY(tile.getData('y')-20);
       scope.tweens.add({
         targets: tile,
         y: tile.getData('y'),
-        delay: 500,
+        delay: 2000,
         ease: "Power2",
         duration: 1500,
-        // onUpdate: ()=>{
-        // }
+        onComplete: ()=>{
+          callback();
+        }
       });
-      callback();
     return;
   }
   if (tileToGenerate){
     let tile = scope.grid[tileToGenerate.i][tileToGenerate.j];
     console.log(tile, 'tile to animate gen')
-    tile.setAlpha(0) 
+    // tile.setAlpha(0) 
     scope.tweens.add({
       targets: tile,
-      delay: 2000,
-      alpha: 1,
+      delay: 300,
+      // alpha: 1,
       angle: 360,
       ease: "Power2",
       duration: 1000,
@@ -205,7 +219,11 @@ function animateTile(scope, tileToDelete, tileToMove, tileToGenerate, callback) 
   }
   i -= 1000;
 }
-function createTileView(scope, value, x, y, isFirstLoad = false) {
+function clearTile(scope, i, j, callback) {
+  scope.grid[i][j].setTexture("empty");
+  callback();
+}
+function createTileView(scope, value, x, y, isFirstLoad = false, i, j) {
   let bgColor = "";
   switch (value) {
     case 1:
@@ -234,7 +252,8 @@ function createTileView(scope, value, x, y, isFirstLoad = false) {
   if (isFirstLoad) {
     return scope.add.image(x, y, bgColor).setScale(0.2).setInteractive();
   }
-  return bgColor;
+  
+  return scope.grid[i][j].setTexture(bgColor);
 }
 
 function clickHandler(scope, i, j) {
@@ -251,7 +270,8 @@ function clickHandler(scope, i, j) {
   if (blast.numberOfAvailiableBlasts >= blastGame.state.minGroupBlast) {
     blastGame.state.boardArea = blast.resultBoard;
     //render
-    makeGrid(scope, false, blast.indexesOfChangedTiles);
+    //makeGrid(scope, false, blast.indexesOfChangedTiles);
+    afterClickEvent(scope, blast.indexesOfChangedTiles)
     // animateTile(scope, q.indexToDelete, undefined);
 
     blastGame.countPoints(blast.numberOfAvailiableBlasts);
@@ -289,7 +309,8 @@ function clickHandler(scope, i, j) {
     // animateTile(scope);
     // makeGrid(scope, false, blast.resultBoard);
     // animateTile(scope, undefined, q.indexToUpdate);
-    makeGrid(scope, false, undefined, boardAreaAfterMove.indexesOfChangedTiles);
+    // makeGrid(scope, false, undefined, boardAreaAfterMove.indexesOfChangedTiles);
+    afterClickEvent(scope, undefined, boardAreaAfterMove.indexesOfChangedTiles)
     updateAfterMove(boardAreaAfterMove.resultBoard, scope);
     console.log(blastGame.state.boardArea);
   }
@@ -343,7 +364,7 @@ function updateAfterMove(boardAreaAfterMove, scope) {
     blastGame.state.colorVariaty
   );
   blastGame.state.boardArea = boardAreaAfterReGenerate.resultBoard;
-  makeGrid(scope, false, undefined, undefined, boardAreaAfterReGenerate.indexesOfChangedTiles);
+  // makeGrid(scope, false, undefined, undefined, boardAreaAfterReGenerate.indexesOfChangedTiles);
   // animateTile(scope, undefined, q.indexToUpdate);
   if (
     !gameLogic.isAnyTileCanBeBlasted(
