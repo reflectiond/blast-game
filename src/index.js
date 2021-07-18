@@ -58,14 +58,16 @@ function preload() {
   this.load.image("empty", "./assets/empty.png");
 }
 function create() {
-  this.add.image(140, 155, "bg").setScale(0.17);
+  this.add.sprite(140, 155, "bg").setScale(0.2);
+  // console.log()
+  // bg.animations.play('wobble');
   this.grid = gameLogic.createArray(N, M);
   makeGrid(this, true);
   animateTile(this);
   
   this.input.enabled = true;
 }
-console.log(gamePhaser.scene.scenes)
+// console.log(gamePhaser.scene.scenes)
 function update() {}
 function makeGrid(scope, isFirstLoad = false, indexesToDeleteAnim, indexesToMoveAnim, indexesToGenerateAnim) {
   // let q = {indexToDelete: [], indexToUpdate: []}
@@ -135,13 +137,21 @@ function animateTile(scope, tileToDelete, tileToMove, tileToGenerate, callback) 
       scope.tweens.add({
         targets: tile,
         angle: -360,
-        scale: 0.1,
+        alpha: 0,
         ease: "Power3",
-        duration: 1000,
+        duration: 600,
         onComplete: ()=>{
-          tile.setScale(0.2)
+          // tile.setAlpha(1)
           callback();
         }
+      });
+      scope.tweens.add({
+        targets: tile,
+        angle: -360,
+        alpha: 1,
+        ease: "Power3",
+        duration: 600,
+
       });
     return;
   }
@@ -151,23 +161,25 @@ function animateTile(scope, tileToDelete, tileToMove, tileToGenerate, callback) 
       scope.tweens.add({
         targets: tile,
         y: tile.getData('y'),
-        delay: 2000,
+        delay: 500,
         ease: "Power2",
         duration: 1500,
-        onUpdate: ()=>{
-          callback();
-        }
+        // onUpdate: ()=>{
+        // }
       });
+      callback();
     return;
   }
   if (tileToGenerate){
     let tile = scope.grid[tileToGenerate.i][tileToGenerate.j];
     console.log(tile, 'tile to animate gen')
+    tile.setAlpha(0) 
     scope.tweens.add({
       targets: tile,
-      delay: 1000,
+      delay: 2000,
+      alpha: 1,
+      angle: 360,
       ease: "Power2",
-      scale: 0.24,
       duration: 1000,
       onUpdate: ()=>{
         callback();
