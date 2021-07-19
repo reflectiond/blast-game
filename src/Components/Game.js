@@ -71,13 +71,13 @@ class Game {
   isGameEnded() {
     if (this.state.storedPoints >= this.state.neededPoints) {
       this.state.gameOver = { Win: true, Loose: false };
-      //return true;
+      return true;
     }
     if (this.state.turnsAvailable === 0 || !this.state.turnExists) {
       this.state.gameOver = { Win: false, Loose: true };
-      //return true;
+      return true;
     }
-    // return false;
+    return false;
   }
   clickHandler(i, j) {
     const copyBoard = this.state.boardArea.map((el) => el.slice(0));

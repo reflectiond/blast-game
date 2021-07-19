@@ -158,46 +158,7 @@ class GameLogic {
     tempBoardArea[i][j] = "special";
     return tempBoardArea;
   }
-  // moveAfterBlast(boardArea, N, M, indexesOfDeleted) {
-  //   let result = {
-  //     resultBoard : boardArea.map((el) => el.slice(0)),
-  //     indexesOfChangedTiles: []
-  //   }
-  //   let markedIndexes = [];
-  //   let isIndexAlreadyMarked;
-  //   let isIndexWasDeleted;
-  //   for (let i = 0; i < N; i++) {
-  //     for (let j = 0; j < M; j++) {
-  //       if (boardArea[i][j] === null && i !== 0) {
-  //         for (let k = i; k > 0; k--) {
-  //           result.resultBoard[k][j] = result.resultBoard[k - 1][j];
-  //           {
-  //           ////////////////////////////////////////////////////////////////////
-  //           isIndexAlreadyMarked = markedIndexes.map((el)=>{
-  //             if(el.i === k-1 && el.j === j && el.isMarked){
-  //               return true;
-  //             }
-  //             return false;
-  //           }).find((el) => el===true);
-  //           ////////////////////////////////////////////////////////////////////
-  //           isIndexWasDeleted = indexesOfDeleted.map((el)=>{
-  //             if(el.i === k - 1 && el.j === j){
-  //               return true;
-  //             }
-  //             return false;
-  //           }).find((el) => el===true);
-  //           ////////////////////////////////////////////////////////////////////
-  //           if (!isIndexAlreadyMarked && !isIndexWasDeleted) {
-  //             result.indexesOfChangedTiles.push({i:k - 1, j:j})
-  //             markedIndexes.push({i: k-1,j: j, isMarked: true});
-  //           }}
-  //         }
-  //         result.resultBoard[0][j] = null;
-  //       }
-  //     }
-  //   }
-  //   return result;
-  // }
+
   moveAfterBlast(boardArea, N, M) {
     let result = {
       resultBoard : boardArea.map((el) => el.slice(0)),
@@ -210,29 +171,29 @@ class GameLogic {
           if (result.resultBoard[i-1][j]=== null){
             let k = N - 1;
             let n = 2;
-            let iteration = 0;
+            
             while(k !== 0 ){
               if (i-n >= 0){
                 if(result.resultBoard[i-n][j]===null){
                   k--;
                   n++;
-                  iteration++;
                   continue;
                 }
                 let temp = result.resultBoard[i-n][j];
-                result.resultBoard[i-n][j] = result.resultBoard[i-iteration][j];
-                result.resultBoard[i-iteration][j] = temp;
-                result.indexesOfChangedTiles.push({i: i-n,j, newI: i-iteration})
+                result.resultBoard[i-n][j] = result.resultBoard[i][j];
+                result.resultBoard[i][j] = temp;
+                result.indexesOfChangedTiles.push({i: i-n, j, newI: i})
+                break;
               }
               n++;
               k--;
-              iteration++;
+              
             }
           }else{
             let temp = result.resultBoard[i-1][j];
             result.resultBoard[i-1][j] = result.resultBoard[i][j];
             result.resultBoard[i][j] = temp;
-            result.indexesOfChangedTiles.push({i: i-1,j, newI: i})
+            result.indexesOfChangedTiles.push({i: i-1, j, newI: i})
           }
 
         }
@@ -257,39 +218,29 @@ class GameLogic {
     return result;
   }
   shuffleTiles(boardArea, N, M, pre='casual') {
-    let copyBoard = [];
-    if (pre!=='preshuffle'){
-      console.log('was shuffled')
-      copyBoard = boardArea.map((el) => el.slice(0));
-    }else{
-      copyBoard = boardArea;
+    let result = {
+      resultBoard : boardArea.map((el) => el.slice(0)),
+      indexesOfChangedTiles: []
+    }
+    
+    if (pre === 'preshuffle'){
+      result.resultBoard = boardArea;
     }
     for (let i = 0; i < N; i++) {
       for (let j = 0; j < M; j++) {
         let i1 = Math.floor(Math.random() * N);
         let j1 = Math.floor(Math.random() * M);
 
-        let temp = copyBoard[i][j];
-        copyBoard[i][j] = copyBoard[i1][j1];
-        copyBoard[i1][j1] = temp;
+        let temp = result.resultBoard[i][j];
+        result.resultBoard[i][j] = result.resultBoard[i1][j1];
+        result.indexesOfChangedTiles.push({i:i, j:j, newI: i1, newJ:j1})
+        result.resultBoard[i1][j1] = temp;
       }
     }
-    if (pre!=='preshuffle'){
-      return copyBoard;
+    if (pre=='casual'){
+      return result;
     }
   }
-  // preShuffleTiles(boardArea) {
-  //   for (let i = 0; i < this.state.aspectRatio.N; i++) {
-  //     for (let j = 0; j < this.state.aspectRatio.M; j++) {
-  //       let i1 = Math.floor(Math.random() * this.state.aspectRatio.N);
-  //       let j1 = Math.floor(Math.random() * this.state.aspectRatio.M);
-
-  //       let temp = boardArea[i][j];
-  //       boardArea[i][j] = boardArea[i1][j1];
-  //       boardArea[i1][j1] = temp;
-  //     }
-  //   }
-  // }
 
 }
 export default GameLogic;
