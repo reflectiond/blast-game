@@ -237,7 +237,7 @@ class GameLogic {
         result.resultBoard[i1][j1] = temp;
       }
     }
-    if (pre=='casual'){
+    if (pre==='casual'){
       return result;
     }
   }
