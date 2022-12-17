@@ -9,7 +9,7 @@ import { render } from "@testing-library/react";
 import GameLogic from "./Components/GameLogic";
 let gameLogic = new GameLogic();
 // moves Available
-let Y = 1;
+let Y = 15;
 // field aspect
 //x axis
 let N = 6;
@@ -20,9 +20,9 @@ let C = 5;
 //needed blast size to activate special
 let L = 999;
 let minGroupBlast = 2;
-let neededPoints = 5;
+let neededPoints = 50;
 let shufflesAvailiable = 1;
-let dynomiteRadius = 1;
+let dynomiteRadius = 2;
 const images = [];
 
 let blastGame = new Game({
